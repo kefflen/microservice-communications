@@ -5,6 +5,7 @@ import prismaClient from "./application/infra/database/prismaClient"
 import OrderRepositoryDatabase from "./application/infra/repository/OrderRepositoryDatabase"
 import { CourseRepositoryDatabase } from "./application/infra/repository/CourseRepositoryDatabase"
 import GetOrder from "./application/usecase/GetOrder"
+import PaymentGatewayHttp from "./application/infra/gateway/PaymentGatewayHttp"
 
 let courseMock: Course
 const courseId = crypto.randomUUID()
@@ -33,7 +34,8 @@ test("Should do checkout", async () => {
 
   const orderRepository = new OrderRepositoryDatabase()
   const courseRepository = new CourseRepositoryDatabase()
-  const checkout = new Checkout(orderRepository, courseRepository)
+  const paymentGateway = new PaymentGatewayHttp()
+  const checkout = new Checkout(orderRepository, courseRepository, paymentGateway)
 
   const input = {
     courseId,
@@ -51,7 +53,7 @@ test("Should do checkout", async () => {
 
   expect(outputGetOrder).toEqual({
     ...outputGetOrder,
-    status: "waiting_payment",
+    status: "confirmed",
     orderId: expect.any(String)
   })
 })

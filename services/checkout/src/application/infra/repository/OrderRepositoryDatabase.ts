@@ -11,7 +11,7 @@ export default class OrderRepositoryDatabase implements OrderRepository {
         email: order.email,
         courseId: order.courseId,
         amount: order.amount,
-        status: order.status,
+        status: order.getStatus(),
       },
     })
   }
@@ -23,7 +23,7 @@ export default class OrderRepositoryDatabase implements OrderRepository {
         email: order.email,
         courseId: order.courseId,
         amount: order.amount,
-        status: order.status,
+        status: order.getStatus(),
       },
       where: {
         orderId: order.orderId,

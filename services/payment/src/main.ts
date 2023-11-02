@@ -1,13 +1,18 @@
 import express from 'express'
+import cors from 'cors'
 
 const app = express()
 app.use(express.json())
+app.use(cors())
 
-app.post('process_payment', (req, res) => {
+app.post('/process_payment', (req, res) => {
 
-  console.log(req.body)
+  const input = req.body
+  console.log(input)
+
   return res.json({
     status: 'success',
+    orderId: input.orderId
   })
 })
 

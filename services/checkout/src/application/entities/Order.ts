@@ -7,9 +7,16 @@ export default class Order {
     readonly name: string,
     readonly email: string,
     readonly amount: number,
-    readonly status: string
+    private status: string
   ) {}
 
+  getStatus() {
+    return this.status
+  }
+
+  consfirmPayment() {
+    this.status = "confirmed"
+  }
   static create(name: string, email: string, courseId: string, amount: number) {
     const orderId = crypto.randomUUID()
     const status = "waiting_payment"

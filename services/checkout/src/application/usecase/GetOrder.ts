@@ -13,7 +13,7 @@ export default class GetOrder {
       name: order.name,
       email: order.email,
       amount: order.amount,
-      status: order.status
+      status: order.getStatus()
     }
   }
 }
