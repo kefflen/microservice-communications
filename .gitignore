@@ -128,3 +128,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+services/checkout/prisma/migrations/migration_lock.toml
+services/checkout/prisma/dev.db
+services/checkout/prisma/dev.db-journal
