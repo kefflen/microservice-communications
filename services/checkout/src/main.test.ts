@@ -6,10 +6,13 @@ import OrderRepositoryDatabase from "./application/infra/repository/OrderReposit
 import { CourseRepositoryDatabase } from "./application/infra/repository/CourseRepositoryDatabase"
 import GetOrder from "./application/usecase/GetOrder"
 import PaymentGatewayHttp from "./application/infra/gateway/PaymentGatewayHttp"
+import RabbitMQAdapter from "./application/infra/queue/RabbitMQAdapter"
 
 let courseMock: Course
+const queue = new RabbitMQAdapter()
 const courseId = crypto.randomUUID()
 beforeAll(async () => {
+  await queue.connect()
   await prismaClient.course.create({
     data: {
       courseId,
@@ -35,7 +38,7 @@ test("Should do checkout", async () => {
   const orderRepository = new OrderRepositoryDatabase()
   const courseRepository = new CourseRepositoryDatabase()
   const paymentGateway = new PaymentGatewayHttp()
-  const checkout = new Checkout(orderRepository, courseRepository, paymentGateway)
+  const checkout = new Checkout(orderRepository, courseRepository, paymentGateway, queue)
 
   const input = {
     courseId,
@@ -53,7 +56,7 @@ test("Should do checkout", async () => {
 
   expect(outputGetOrder).toEqual({
     ...outputGetOrder,
-    status: "confirmed",
+    status: "waiting_payment",
     orderId: expect.any(String)
   })
 })
@@ -65,4 +68,5 @@ afterEach(async () => {
 
 afterAll(async () => {
   await prismaClient.$disconnect()
+  await queue.close()
 })

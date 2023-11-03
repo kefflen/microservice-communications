@@ -1,5 +1,6 @@
 import Order from "../entities/Order"
 import PaymentGateway, { processPaymentInput } from "../gateway/PaymentGateway"
+import Queue from "../infra/queue/Queue"
 import CourseRepository from "../repository/CourseRepository"
 import OrderRepository from "../repository/OrderRepository"
 
@@ -8,6 +9,7 @@ export default class Checkout {
     private readonly orderRepository: OrderRepository,
     private readonly courseRepository: CourseRepository,
     private readonly paymentGateway: PaymentGateway,
+    private readonly queue: Queue
   ) {}
 
   async execute(input: input): Promise<output> {
@@ -16,18 +18,26 @@ export default class Checkout {
 
     await this.orderRepository.save(order)
 
-    const processPaymentInput: processPaymentInput = {
+    // const processPaymentInput: processPaymentInput = {
+    //   orderId: order.orderId,
+    //   amount: order.amount,
+    //   creditCard: input.cardToken,
+    // }
+
+    // const processPaymentOutput = await this.paymentGateway.processPayment(processPaymentInput)
+
+    // if (processPaymentOutput.status === 'success') {
+    //   order.consfirmPayment()
+    //   await this.orderRepository.update(order)
+    // }
+
+    const orderPlacedEvent = {
       orderId: order.orderId,
       amount: order.amount,
       creditCard: input.cardToken,
     }
-
-    const processPaymentOutput = await this.paymentGateway.processPayment(processPaymentInput)
-
-    if (processPaymentOutput.status === 'success') {
-      order.consfirmPayment()
-      await this.orderRepository.update(order)
-    }
+    
+    await this.queue.publish('orderPlaced', orderPlacedEvent)
 
     return {
       orderId: order.orderId,
